@@ -1,4 +1,4 @@
-import {useEffect, useState} from 'react'
+import {useEffect, useRef, useState} from 'react'
 
 export default function Timer(){
 
@@ -13,21 +13,40 @@ export default function Timer(){
     const [isStarted,setStarted]=useState(false);
     const [timer_id,setId]=useState("")
 
+    const secRef=useRef(seconds)
+    const minRef=useRef(minutes)
+    const hoursRef=useRef(hours)
+
+
+
     useEffect(()=>{
-        console.log(seconds)
-        if(isStarted){
-            let timerid=setTimeout(()=>{
-                update_timer()
-            },1000);
-            setId(timerid);
-        }
-        return clearInterval(timer_id)
-    },[isStarted,seconds,minutes,hours])
+        secRef.current=seconds
+        minRef.current=minutes
+        hoursRef.current=hours
+        // console.log(seconds)
+        // if(isStarted){
+        //     let timerid=setTimeout(()=>{
+        //         update_timer()
+        //     },1000);
+        //     setId(timerid);
+        // }
+        // else{
+        //     setId("")
+        // }
+        // return clearInterval(timer_id)
+
+    },[hours,minutes,seconds])
 
     function update_timer(){
 
+        let seconds=secRef.current
+        let minutes=minRef.current
+        let hours=hoursRef.current
+
         if(seconds==0 && minutes==0 && hours==0){
             setStarted(false);
+            clearInterval(timer_id)
+            setId("")
         }
 
         else if(seconds>0){
@@ -52,26 +71,17 @@ export default function Timer(){
             <div style={{marginLeft:"15px"}}>
                 <input type="number" style={padding} value={hours>9 ?hours :hours} min={0} max={23} 
                 onChange={(e)=>{
-                    // let hrs=parseInt(e.target.value)
-                    // if(hrs<10)
-                    // hrs="0"+hrs
                     setHours(e.target.value)
                 }}/>
                 <span style={padding}>:</span>
                 <input type="number" style={padding} value={minutes>9?minutes:minutes} min={0} max={59} 
                 onChange={(e)=>{
-                // let mins=parseInt(e.target.value)
-                // if(mins<10)
-                // mins="0"+mins
                 setMins(e.target.value)
                 }}
                 />
                 <span style={padding}>:</span>
                 <input type="number" style={padding} value={seconds>9?seconds:seconds} min={0} max={59} 
                 onChange={(e)=>{
-                // let secs=parseInt(e.target.value)
-                // if(secs<10)
-                // secs="0"+secs
                 setSecs(e.target.value)
                 }}/>
             </div>
@@ -81,14 +91,16 @@ export default function Timer(){
                 disabled={isStarted}
                 onClick={()=>{
                     setStarted(true);
+                    let timer_id=setInterval(update_timer,1000)
+                    setId(timer_id)
                 }}
                 >Start Timer
                 </button>
 
                 <button style={margin} onClick={()=>{
-                    clearInterval(timer_id);
-                    setId("")
                     setStarted(false);
+                    clearInterval(timer_id)
+                    setId("")
                 }}
                 >Stop Timer
                 </button>
@@ -96,14 +108,15 @@ export default function Timer(){
                 <button style={margin} onClick={()=>{
 
                     if(isStarted === true){
-                    clearInterval(timer_id);
-                    setId("")
                     setStarted(false);
                     }
 
-                    setHours("00")
-                    setMins("00")
-                    setSecs("00")
+                    clearInterval(timer_id)
+                    setId("")
+
+                    setHours(0)
+                    setMins(0)
+                    setSecs(0)
                 }}
                 >Reset Timer
                 </button>
